@@ -1,5 +1,6 @@
 package com.vkasurinen.woltmobile
 
+import WoltRepository
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -17,7 +18,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.vkasurinen.woltmobile.domain.repository.WoltRepository
 import com.vkasurinen.woltmobile.ui.theme.WoltMobileTheme
 import com.vkasurinen.woltmobile.util.Resource
 import com.vkasurinen.woltmobile.util.Screen
@@ -55,26 +55,26 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        testWoltListRepository()
+//        testWoltListRepository()
     }
 
-    private fun testWoltListRepository() {
-        CoroutineScope(Dispatchers.IO).launch {
-            woltListRepository.getVenues(60.1699, 24.9384, false).collect { resource ->
-                when (resource) {
-                    is Resource.Loading -> {
-                        Log.d("MainActivity", "Loading data...")
-                    }
-
-                    is Resource.Success -> {
-                        Log.d("MainActivity", "Data loaded successfully: ${resource.data}")
-                    }
-
-                    is Resource.Error -> {
-                        Log.e("MainActivity", "Error loading data: ${resource.message}")
-                    }
-                }
-            }
-        }
-    }
+//    private fun testWoltListRepository() {
+//        CoroutineScope(Dispatchers.IO).launch {
+//            woltListRepository.getVenues(60.1699, 24.9384, 15, 0, false).collect { resource ->
+//                when (resource) {
+//                    is Resource.Loading -> {
+//                        Log.d("MainActivity", "Loading data...")
+//                    }
+//
+//                    is Resource.Success -> {
+//                        Log.d("MainActivity", "Data loaded successfully: ${resource.data}")
+//                    }
+//
+//                    is Resource.Error -> {
+//                        Log.e("MainActivity", "Error loading data: ${resource.message}")
+//                    }
+//                }
+//            }
+//        }
+//    }
 }

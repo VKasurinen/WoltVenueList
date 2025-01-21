@@ -12,4 +12,7 @@ interface WoltDao {
 
     @Query("UPDATE venues SET isFavorite = :isFavorite WHERE id = :id")
     suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean)
+
+    @Query("SELECT * FROM venues WHERE isFavorite = 1")
+    suspend fun getFavoriteVenues(): List<WoltEntity>
 }

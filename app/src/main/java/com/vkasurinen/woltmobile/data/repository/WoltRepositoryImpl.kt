@@ -1,11 +1,10 @@
-package com.vkasurinen.woltmobile.data.repository
-
+import androidx.paging.PagingSource
+import androidx.paging.PagingState
 import com.vkasurinen.woltmobile.data.local.WoltDao
 import com.vkasurinen.woltmobile.data.mappers.toWoltEntity
 import com.vkasurinen.woltmobile.data.mappers.toWoltModel
 import com.vkasurinen.woltmobile.data.remote.WoltApi
 import com.vkasurinen.woltmobile.domain.model.WoltModel
-import com.vkasurinen.woltmobile.domain.repository.WoltRepository
 import com.vkasurinen.woltmobile.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -20,17 +19,6 @@ class WoltRepositoryImpl(
     override suspend fun getVenues(latitude: Double, longitude: Double, forceFetchFromRemote: Boolean): Flow<Resource<List<WoltModel>>> {
         return flow {
             emit(Resource.Loading(true))
-            val localVenues = dao.getAllVenues()
-
-            val shouldLoadLocalVenues = localVenues.isNotEmpty() && !forceFetchFromRemote
-
-            if (shouldLoadLocalVenues) {
-                emit(Resource.Success(
-                    data = localVenues.map { it.toWoltModel() }
-                ))
-                emit(Resource.Loading(false))
-                return@flow
-            }
 
             val venuesFromApi = try {
                 api.getVenues(latitude, longitude)
@@ -50,7 +38,7 @@ class WoltRepositoryImpl(
 
             val venueEntities = venuesFromApi.sections
                 .flatMap { it.items }
-                .filter { it.venue != null && !it.venue.name.isNullOrEmpty() } // Filter out items without a valid venue
+                .filter { it.venue != null && !it.venue.name.isNullOrEmpty() }
                 .map { it.toWoltEntity() }
 
             dao.insertVenues(venueEntities)
@@ -64,5 +52,14 @@ class WoltRepositoryImpl(
 
     override suspend fun updateFavoriteStatus(id: String, isFavorite: Boolean) {
         dao.updateFavoriteStatus(id, isFavorite)
+    }
+
+    override suspend fun getFavoriteVenues(): Flow<Resource<List<WoltModel>>> {
+        return flow {
+            emit(Resource.Loading(true))
+            val favoriteVenues = dao.getFavoriteVenues()
+            emit(Resource.Success(data = favoriteVenues.map { it.toWoltModel() }))
+            emit(Resource.Loading(false))
+        }
     }
 }

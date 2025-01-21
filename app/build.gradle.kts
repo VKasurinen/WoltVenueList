@@ -97,5 +97,7 @@ dependencies {
     // System UI Controller
     implementation(libs.accompanist.systemuicontroller)
 
+    implementation(libs.androidx.paging.runtime)
+    implementation(libs.androidx.paging.compose)
 
 }

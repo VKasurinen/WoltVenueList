@@ -44,6 +44,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.vkasurinen.woltmobile.presentation.favorites.FavoriteScreenRoot
 import com.vkasurinen.woltmobile.presentation.venueList.VenueScreenRoot
 import com.vkasurinen.woltmobile.util.Screen
 
@@ -115,7 +116,7 @@ fun MainScreen(navController: NavHostController) {
                     VenueScreenRoot(navController = navController)
                 }
                 composable(Screen.Favorites.route) {
-
+                    FavoriteScreenRoot(navController = navController)
                 }
 
             }
@@ -144,7 +145,7 @@ fun BottomNavigationBar(
     }
 
     NavigationBar(
-        modifier = Modifier.height(45.dp),
+        modifier = Modifier.height(65.dp),
         containerColor = Color.Transparent,
         contentColor = MaterialTheme.colorScheme.onBackground
     ) {

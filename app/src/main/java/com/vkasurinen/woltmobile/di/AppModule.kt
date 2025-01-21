@@ -1,10 +1,11 @@
 package com.vkasurinen.woltmobile.di
 
+import WoltRepository
+import WoltRepositoryImpl
 import androidx.room.Room
 import com.vkasurinen.woltmobile.data.local.WoltDatabase
 import com.vkasurinen.woltmobile.data.remote.WoltApi
-import com.vkasurinen.woltmobile.data.repository.WoltRepositoryImpl
-import com.vkasurinen.woltmobile.domain.repository.WoltRepository
+import com.vkasurinen.woltmobile.presentation.favorites.FavoriteViewModel
 import com.vkasurinen.woltmobile.presentation.venueList.VenueViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -43,6 +44,8 @@ val appModule = module {
 
     single<WoltRepository> { WoltRepositoryImpl(get(), get<WoltDatabase>().woltDao()) }
 
-    viewModel { VenueViewModel(get())}
+    viewModel { VenueViewModel(get()) }
+    viewModel { FavoriteViewModel(get()) }
+
 
 }
