@@ -1,18 +1,22 @@
-package com.vkasurinen.woltmobile.data.remote
-
+// WoltDto.kt
 data class WoltResponse(
     val sections: List<Section>
 )
 
 data class Section(
-    val items: List<Venue>
+    val items: List<VenueItem>
+)
+
+data class VenueItem(
+    val venue: Venue?,
+    val image: Image?
 )
 
 data class Venue(
-    val content_id: String?,
-    val title: String?,
-    val image: Image?,
-    val description: String?
+    val id: String?,
+    val name: String?,
+    val short_description: String?,
+    val address: String?
 )
 
 data class Image(

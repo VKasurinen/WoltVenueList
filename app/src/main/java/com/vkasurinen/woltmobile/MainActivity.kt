@@ -7,14 +7,20 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.vkasurinen.woltmobile.domain.repository.WoltRepository
 import com.vkasurinen.woltmobile.ui.theme.WoltMobileTheme
 import com.vkasurinen.woltmobile.util.Resource
+import com.vkasurinen.woltmobile.util.Screen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,11 +35,23 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             WoltMobileTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    val navController = rememberNavController()
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screen.Main.route
+                    ) {
+                        composable(Screen.Main.route) {
+                            MainScreen(navController)
+                        }
+//                        composable(Screen.Details.route) {
+//                            val isTopNews = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isTopNews") ?: false
+//                            DetailsScreenRoot(navController = navController, isTopNews = isTopNews)
+//                        }
+                    }
                 }
             }
         }
@@ -47,30 +65,16 @@ class MainActivity : ComponentActivity() {
                     is Resource.Loading -> {
                         Log.d("MainActivity", "Loading data...")
                     }
+
                     is Resource.Success -> {
                         Log.d("MainActivity", "Data loaded successfully: ${resource.data}")
                     }
+
                     is Resource.Error -> {
                         Log.e("MainActivity", "Error loading data: ${resource.message}")
                     }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    WoltMobileTheme {
-        Greeting("Android")
     }
 }

@@ -1,5 +1,6 @@
 package com.vkasurinen.woltmobile.data.remote
 
+import WoltResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 

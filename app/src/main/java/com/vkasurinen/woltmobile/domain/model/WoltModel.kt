@@ -5,5 +5,6 @@ data class WoltModel(
     val name: String,
     val imageUrl: String,
     val description: String,
+    val address: String,
     val isFavorite: Boolean
 )

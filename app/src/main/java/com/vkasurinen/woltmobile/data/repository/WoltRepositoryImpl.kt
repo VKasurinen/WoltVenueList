@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.flow
 import retrofit2.HttpException
 import java.io.IOException
 
-
 class WoltRepositoryImpl(
     private val api: WoltApi,
     private val dao: WoltDao
@@ -49,7 +48,10 @@ class WoltRepositoryImpl(
                 return@flow
             }
 
-            val venueEntities = venuesFromApi.sections.flatMap { it.items }.map { it.toWoltEntity() }
+            val venueEntities = venuesFromApi.sections
+                .flatMap { it.items }
+                .filter { it.venue != null && !it.venue.name.isNullOrEmpty() } // Filter out items without a valid venue
+                .map { it.toWoltEntity() }
 
             dao.insertVenues(venueEntities)
 

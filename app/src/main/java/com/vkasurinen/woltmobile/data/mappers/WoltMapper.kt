@@ -1,7 +1,8 @@
+// WoltMapper.kt
 package com.vkasurinen.woltmobile.data.mappers
 
+import VenueItem
 import com.vkasurinen.woltmobile.data.local.WoltEntity
-import com.vkasurinen.woltmobile.data.remote.Venue
 import com.vkasurinen.woltmobile.domain.model.WoltModel
 
 fun WoltEntity.toWoltModel(): WoltModel {
@@ -10,16 +11,17 @@ fun WoltEntity.toWoltModel(): WoltModel {
         name = name,
         imageUrl = imageUrl,
         description = description,
-        isFavorite = isFavorite
+        isFavorite = isFavorite,
+        address = address
     )
 }
 
-
-fun Venue.toWoltEntity(): WoltEntity {
+fun VenueItem.toWoltEntity(): WoltEntity {
     return WoltEntity(
-        id = content_id ?: "",
-        name = title ?: "",
+        id = venue?.id ?: "",
+        name = venue?.name ?: "",
         imageUrl = image?.url ?: "",
-        description = description ?: ""
+        description = venue?.short_description ?: "",
+        address = venue?.address ?: ""
     )
 }
