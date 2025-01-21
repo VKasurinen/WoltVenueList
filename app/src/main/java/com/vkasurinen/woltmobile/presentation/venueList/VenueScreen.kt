@@ -25,6 +25,7 @@ import com.vkasurinen.woltmobile.presentation.venueList.components.VenueItem
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import kotlinx.coroutines.delay
 import java.nio.file.WatchEvent
@@ -47,6 +48,9 @@ fun VenueScreen(
     state: VenueState,
     onToggleFavorite: (String) -> Unit
 ) {
+
+    val listState = rememberLazyListState()
+
     Crossfade(targetState = state) { currentState ->
         if (currentState.isLoading) {
             Box(
@@ -64,6 +68,7 @@ fun VenueScreen(
             }
         } else {
             LazyColumn(
+                state = listState,
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 8.dp)

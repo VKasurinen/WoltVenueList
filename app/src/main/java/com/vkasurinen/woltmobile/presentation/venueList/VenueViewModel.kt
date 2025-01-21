@@ -2,6 +2,7 @@ package com.vkasurinen.woltmobile.presentation.venueList
 
 import WoltRepository
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -26,10 +27,7 @@ class VenueViewModel(
     private val _favoriteVenueIds = MutableStateFlow<Set<String>>(emptySet())
     val favoriteVenueIds: StateFlow<Set<String>> = _favoriteVenueIds.asStateFlow()
 
-//    private val favoriteVenueIds by rememberSaveable {
-//        mutableSetOf<String>()
-//    }
-
+    private var currentCoordinateIndex = 0
     private val coordinates = listOf(
         Pair(60.169418, 24.931618),
         Pair(60.169818, 24.932906),
@@ -42,21 +40,27 @@ class VenueViewModel(
         Pair(60.170085, 24.929569)
     )
 
-    private var currentCoordinateIndex = 0
-
     init {
         Log.d("VenueViewModel", "Initializing ViewModel")
-        updateLocationPeriodically()
         loadFavoriteVenues()
+        updateLocationPeriodically()
     }
 
     private fun loadFavoriteVenues() {
         viewModelScope.launch {
+            Log.d("VenueViewModel", "Loading favorite venues...")
             repository.getFavoriteVenues().collectLatest { resource ->
-                if (resource is Resource.Success) {
-                    resource.data?.let { venues ->
-                        _favoriteVenueIds.value = venues.map { it.id }.toSet()
+                when (resource) {
+                    is Resource.Success -> {
+                        resource.data?.let { venues ->
+                            Log.d("VenueViewModel", "Favorite venues loaded: ${venues.map { it.name }}")
+                            _favoriteVenueIds.value = venues.map { it.id }.toSet()
+                        }
                     }
+                    is Resource.Error -> {
+                        _state.update { it.copy(error = resource.message) }
+                    }
+                    else -> Unit
                 }
             }
         }
@@ -75,11 +79,10 @@ class VenueViewModel(
         }
     }
 
-
     private fun loadVenues(latitude: Double, longitude: Double) {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            repository.getVenues(latitude, longitude, false).collectLatest { resource ->
+            repository.getVenues(latitude, longitude, forceFetchFromRemote = false).collectLatest { resource ->
                 when (resource) {
                     is Resource.Success -> {
                         resource.data?.let { venues ->
@@ -111,10 +114,9 @@ class VenueViewModel(
                 _favoriteVenueIds.value - venueId
             }
 
-            // Update repository with the new favorite status
             repository.updateFavoriteStatus(venueId, isNowFavorite)
+            Log.d("VenueViewModel", "Favorite status updated for venueId: $venueId, isFavorite: $isNowFavorite")
 
-            // Update UI state
             _state.update { currentState ->
                 val updatedVenues = currentState.venues.map { venue ->
                     if (venue.id == venueId) venue.copy(isFavorite = isNowFavorite) else venue
