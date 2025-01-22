@@ -59,7 +59,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        insertAndLogVenue()
     }
 
 
@@ -80,31 +79,31 @@ class MainActivity : ComponentActivity() {
 
 
 
-    private fun insertAndLogVenue() {
-        lifecycleScope.launch {
-            try {
-                // Create a new venue
-                val newVenue = WoltEntity(
-                    id = "new_id",
-                    name = "New Venue",
-                    imageUrl = "https://example.com/image.jpg",
-                    description = "This is a new venue.",
-                    address = "123 New Street",
-                    isFavorite = false
-                )
-
-                // Insert the new venue into the database
-                woltDao.insertVenues(listOf(newVenue))
-                Log.d("DatabaseStatus", "New venue inserted: $newVenue")
-
-                // Retrieve and log all venues
-                val allVenues = woltDao.getAllVenues()
-                Log.d("DatabaseStatus", "All Venues after insertion: ${allVenues.map { it.id to it.name }}")
-            } catch (e: Exception) {
-                Log.e("DatabaseStatus", "Error inserting and logging venue", e)
-            }
-        }
-    }
+//    private fun insertAndLogVenue() {
+//        lifecycleScope.launch {
+//            try {
+//                // Create a new venue
+//                val newVenue = WoltEntity(
+//                    id = "new_id",
+//                    name = "New Venue",
+//                    imageUrl = "https://example.com/image.jpg",
+//                    description = "This is a new venue.",
+//                    address = "123 New Street",
+//                    isFavorite = false
+//                )
+//
+//                // Insert the new venue into the database
+//                woltDao.insertVenues(listOf(newVenue))
+//                Log.d("DatabaseStatus", "New venue inserted: $newVenue")
+//
+//                // Retrieve and log all venues
+//                val allVenues = woltDao.getAllVenues()
+//                Log.d("DatabaseStatus", "All Venues after insertion: ${allVenues.map { it.id to it.name }}")
+//            } catch (e: Exception) {
+//                Log.e("DatabaseStatus", "Error inserting and logging venue", e)
+//            }
+//        }
+//    }
 
 
 

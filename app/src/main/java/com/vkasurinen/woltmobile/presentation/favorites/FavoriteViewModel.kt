@@ -51,14 +51,18 @@ class FavoriteViewModel(
 
     fun toggleFavorite(venueId: String) {
         viewModelScope.launch {
-            val currentVenues = _state.value.venues.toMutableList()
-            val venueIndex = currentVenues.indexOfFirst { it.id == venueId }
-            if (venueIndex != -1) {
-                val venue = currentVenues[venueIndex]
-                val updatedVenue = venue.copy(isFavorite = !venue.isFavorite)
-                currentVenues[venueIndex] = updatedVenue
-                _state.update { it.copy(venues = currentVenues) }
-                repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
+            try {
+                val currentVenues = _state.value.venues.toMutableList()
+                val venueIndex = currentVenues.indexOfFirst { it.id == venueId }
+                if (venueIndex != -1) {
+                    val venue = currentVenues[venueIndex]
+                    val updatedVenue = venue.copy(isFavorite = !venue.isFavorite)
+                    currentVenues[venueIndex] = updatedVenue
+                    _state.update { it.copy(venues = currentVenues) }
+                    repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = "Error updating favorite status: ${e.message}") }
             }
         }
     }
