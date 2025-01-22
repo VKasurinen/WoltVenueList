@@ -42,10 +42,10 @@ val appModule = module {
         ).build()
     }
 
+    single { get<WoltDatabase>().woltDao() }
+
     single<WoltRepository> { WoltRepositoryImpl(get(), get<WoltDatabase>().woltDao()) }
 
     viewModel { VenueViewModel(get()) }
     viewModel { FavoriteViewModel(get()) }
-
-
 }

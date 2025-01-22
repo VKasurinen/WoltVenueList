@@ -25,6 +25,7 @@ class FavoriteViewModel(
 
     private fun loadFavoriteVenues() {
         viewModelScope.launch {
+            _state.update { it.copy(isLoading = true) }
             repository.getFavoriteVenues().collectLatest { resource ->
                 when (resource) {
                     is Resource.Success -> {
@@ -58,7 +59,6 @@ class FavoriteViewModel(
                 currentVenues[venueIndex] = updatedVenue
                 _state.update { it.copy(venues = currentVenues) }
                 repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
-                loadFavoriteVenues() // Refresh the favorite venues list
             }
         }
     }

@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -24,8 +25,10 @@ class VenueViewModel(
     private val _state = MutableStateFlow(VenueState())
     val state: StateFlow<VenueState> = _state.asStateFlow()
 
-    private val _favoriteVenueIds = MutableStateFlow<Set<String>>(emptySet())
-    val favoriteVenueIds: StateFlow<Set<String>> = _favoriteVenueIds.asStateFlow()
+    init {
+        Log.d("VenueViewModel", "Initializing ViewModel")
+        loadVenues(60.169418, 24.931618)
+    }
 
     private var currentCoordinateIndex = 0
     private val coordinates = listOf(
@@ -40,65 +43,54 @@ class VenueViewModel(
         Pair(60.170085, 24.929569)
     )
 
-    init {
-        Log.d("VenueViewModel", "Initializing ViewModel")
-        loadFavoriteVenues()
-        updateLocationPeriodically()
-    }
-
-    private fun loadFavoriteVenues() {
-        viewModelScope.launch {
-            Log.d("VenueViewModel", "Loading favorite venues...")
-            repository.getFavoriteVenues().collectLatest { resource ->
-                when (resource) {
-                    is Resource.Success -> {
-                        resource.data?.let { venues ->
-                            Log.d("VenueViewModel", "Favorite venues loaded: ${venues.map { it.name }}")
-                            _favoriteVenueIds.value = venues.map { it.id }.toSet()
-                        }
-                    }
-                    is Resource.Error -> {
-                        _state.update { it.copy(error = resource.message) }
-                    }
-                    else -> Unit
-                }
-            }
-        }
-    }
-
-    private fun updateLocationPeriodically() {
-        viewModelScope.launch {
-            Log.d("VenueViewModel", "Starting periodic location updates")
-            while (true) {
-                val (latitude, longitude) = coordinates[currentCoordinateIndex]
-                Log.d("VenueViewModel", "Fetching venues for coordinates: ($latitude, $longitude)")
-                loadVenues(latitude, longitude)
-                currentCoordinateIndex = (currentCoordinateIndex + 1) % coordinates.size
-                delay(10000) // 10 seconds
-            }
-        }
-    }
+    //    private fun updateLocationPeriodically() {
+//        viewModelScope.launch {
+//            Log.d("VenueViewModel", "Starting periodic location updates")
+//            while (true) {
+//                val (latitude, longitude) = coordinates[currentCoordinateIndex]
+//                Log.d("VenueViewModel", "Fetching venues for coordinates: ($latitude, $longitude)")
+//                loadVenues(latitude, longitude)
+//                currentCoordinateIndex = (currentCoordinateIndex + 1) % coordinates.size
+//                delay(10000) // 10 seconds
+//            }
+//        }
+//    }
 
     private fun loadVenues(latitude: Double, longitude: Double) {
         viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            repository.getVenues(latitude, longitude, forceFetchFromRemote = false).collectLatest { resource ->
-                when (resource) {
+            _state.update {
+                it.copy(isLoading = true)
+            }
+
+            repository.getVenues(
+                latitude = latitude,
+                longitude = longitude,
+                forceFetchFromRemote = false
+            ).collectLatest { result ->
+                when (result) {
+                    is Resource.Error -> {
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                error = result.message
+                            )
+                        }
+                    }
                     is Resource.Success -> {
-                        resource.data?.let { venues ->
-                            val updatedVenues = venues.map { venue ->
-                                venue.copy(isFavorite = _favoriteVenueIds.value.contains(venue.id))
-                            }
+                        result.data?.let { venueList ->
+                            val limitedVenues = venueList.take(15)
                             _state.update {
-                                it.copy(venues = updatedVenues.take(15), isLoading = false)
+                                it.copy(
+                                    venues = limitedVenues,
+                                    isLoading = false
+                                )
                             }
                         }
                     }
-                    is Resource.Error -> {
-                        _state.update { it.copy(isLoading = false, error = resource.message) }
-                    }
                     is Resource.Loading -> {
-                        _state.update { it.copy(isLoading = resource.isLoading) }
+                        _state.update {
+                            it.copy(isLoading = result.isLoading)
+                        }
                     }
                 }
             }
@@ -107,21 +99,14 @@ class VenueViewModel(
 
     fun toggleFavorite(venueId: String) {
         viewModelScope.launch {
-            val isNowFavorite = !_favoriteVenueIds.value.contains(venueId)
-            _favoriteVenueIds.value = if (isNowFavorite) {
-                _favoriteVenueIds.value + venueId
-            } else {
-                _favoriteVenueIds.value - venueId
-            }
-
-            repository.updateFavoriteStatus(venueId, isNowFavorite)
-            Log.d("VenueViewModel", "Favorite status updated for venueId: $venueId, isFavorite: $isNowFavorite")
-
-            _state.update { currentState ->
-                val updatedVenues = currentState.venues.map { venue ->
-                    if (venue.id == venueId) venue.copy(isFavorite = isNowFavorite) else venue
-                }
-                currentState.copy(venues = updatedVenues)
+            val currentVenues = _state.value.venues.toMutableList()
+            val venueIndex = currentVenues.indexOfFirst { it.id == venueId }
+            if (venueIndex != -1) {
+                val venue = currentVenues[venueIndex]
+                val updatedVenue = venue.copy(isFavorite = !venue.isFavorite)
+                currentVenues[venueIndex] = updatedVenue
+                _state.update { it.copy(venues = currentVenues) }
+                repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
             }
         }
     }

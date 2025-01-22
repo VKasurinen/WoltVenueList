@@ -41,10 +41,21 @@ class WoltRepositoryImpl(
                 .filter { it.venue != null && !it.venue.name.isNullOrEmpty() }
                 .map { it.toWoltEntity() }
 
-            dao.insertVenues(venueEntities)
+            // Preserve the isFavorite status
+            val existingVenues = dao.getAllVenues()
+            val mergedVenues = venueEntities.map { newVenue ->
+                val existingVenue = existingVenues.find { it.id == newVenue.id }
+                if (existingVenue != null) {
+                    newVenue.copy(isFavorite = existingVenue.isFavorite)
+                } else {
+                    newVenue
+                }
+            }
+
+            dao.insertVenues(mergedVenues)
 
             emit(Resource.Success(
-                data = venueEntities.map { it.toWoltModel() }
+                data = mergedVenues.map { it.toWoltModel() }
             ))
             emit(Resource.Loading(false))
         }
@@ -62,4 +73,5 @@ class WoltRepositoryImpl(
             emit(Resource.Loading(false))
         }
     }
+
 }
