@@ -94,9 +94,9 @@ class VenueViewModel(
 
     private fun observeFavoriteVenues() {
         viewModelScope.launch {
-            repository.getFavoriteVenues().collectLatest { resource ->
-                if (resource is Resource.Success) {
-                    val favoriteVenues = resource.data ?: emptyList()
+            repository.getFavoriteVenues().collectLatest { result ->
+                if (result is Resource.Success) {
+                    val favoriteVenues = result.data ?: emptyList()
                     val updatedVenues = _state.value.venues.map { venue ->
                         venue.copy(isFavorite = favoriteVenues.any { it.id == venue.id })
                     }

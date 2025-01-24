@@ -46,9 +46,9 @@ class DetailsViewModel(
                     _state.update { it.copy(venue = updatedVenue) }
                     repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
                     // Notify other view models about the change
-                    repository.getFavoriteVenues().collectLatest { resource ->
-                        if (resource is Resource.Success) {
-                            val favoriteVenues = resource.data ?: emptyList()
+                    repository.getFavoriteVenues().collectLatest { result ->
+                        if (result is Resource.Success) {
+                            val favoriteVenues = result.data ?: emptyList()
                             val updatedVenues = _state.value.venues.map { venue ->
                                 venue.copy(isFavorite = favoriteVenues.any { it.id == venue.id })
                             }

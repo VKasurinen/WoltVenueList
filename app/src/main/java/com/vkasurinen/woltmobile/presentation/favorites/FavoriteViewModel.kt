@@ -26,10 +26,10 @@ class FavoriteViewModel(
     private fun loadFavoriteVenues() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
-            repository.getFavoriteVenues().collectLatest { resource ->
-                when (resource) {
+            repository.getFavoriteVenues().collectLatest { result ->
+                when (result) {
                     is Resource.Success -> {
-                        resource.data?.let { venues ->
+                        result.data?.let { venues ->
                             _state.update {
                                 it.copy(
                                     venues = venues,
@@ -39,10 +39,10 @@ class FavoriteViewModel(
                         }
                     }
                     is Resource.Error -> {
-                        _state.update { it.copy(isLoading = false, error = resource.message) }
+                        _state.update { it.copy(isLoading = false, error = result.message) }
                     }
                     is Resource.Loading -> {
-                        _state.update { it.copy(isLoading = resource.isLoading) }
+                        _state.update { it.copy(isLoading = result.isLoading) }
                     }
                 }
             }

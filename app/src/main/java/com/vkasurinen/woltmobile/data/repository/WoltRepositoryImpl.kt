@@ -19,13 +19,9 @@ class WoltRepositoryImpl(
     private val dao: WoltDao
 ) : WoltRepository {
 
-    private val requestSemaphore = Semaphore(8)
-
     override suspend fun getVenues(latitude: Double, longitude: Double, forceFetchFromRemote: Boolean): Flow<Resource<List<WoltModel>>> {
         return flow {
             emit(Resource.Loading(true))
-
-            requestSemaphore.withPermit {
                 val venuesFromApi = try {
                     Log.d("WoltRepo", "Getting venues from api $latitude, $longitude")
                     api.getVenues(latitude, longitude)
@@ -64,7 +60,6 @@ class WoltRepositoryImpl(
                 emit(Resource.Success(
                     data = mergedVenues.map { it.toWoltModel() }
                 ))
-            }
 
             emit(Resource.Loading(false))
         }
