@@ -10,5 +10,16 @@ data class WoltEntity(
     val imageUrl: String,
     val description: String,
     val address: String,
-    val isFavorite: Boolean = false
+    val isFavorite: Boolean = false,
+    val rating: Double?,
+    val shortDescription: String?,
+    val venuePreviewItems: List<VenuePreviewItemEntity>?
+)
+
+data class VenuePreviewItemEntity(
+    val id: String?,
+    val name: String?,
+    val price: Int?,
+    val imageUrl: String?,
+    val currency: String?
 )

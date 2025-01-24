@@ -6,5 +6,16 @@ data class WoltModel(
     val imageUrl: String,
     val description: String,
     val address: String,
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    val rating: Double?,
+    val shortDescription: String?,
+    val venuePreviewItems: List<VenuePreviewItemModel>?
+)
+
+data class VenuePreviewItemModel(
+    val id: String?,
+    val name: String?,
+    val price: Int?,
+    val imageUrl: String?,
+    val currency: String?
 )
