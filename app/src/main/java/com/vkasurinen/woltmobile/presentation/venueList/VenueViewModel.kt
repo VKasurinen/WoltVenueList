@@ -56,15 +56,8 @@ class VenueViewModel(
 
     private fun loadVenues(latitude: Double, longitude: Double) {
         viewModelScope.launch {
-            _state.update {
-                it.copy(isLoading = true)
-            }
-
-            repository.getVenues(
-                latitude = latitude,
-                longitude = longitude,
-                forceFetchFromRemote = false
-            ).collectLatest { result ->
+            _state.update { it.copy(isLoading = true) }
+            repository.getVenues(latitude = latitude, longitude = longitude, forceFetchFromRemote = false).collectLatest { result ->
                 when (result) {
                     is Resource.Error -> {
                         _state.update {

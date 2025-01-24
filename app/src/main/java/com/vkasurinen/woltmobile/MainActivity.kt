@@ -11,10 +11,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.vkasurinen.woltmobile.data.local.WoltDao
+import com.vkasurinen.woltmobile.presentation.details.DetailsScreenRoot
 import com.vkasurinen.woltmobile.ui.theme.WoltMobileTheme
 import com.vkasurinen.woltmobile.util.Screen
 import kotlinx.coroutines.launch
@@ -42,10 +45,15 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Main.route) {
                             MainScreen(navController)
                         }
-//                        composable(Screen.Details.route) {
-//                            val isTopNews = navController.previousBackStackEntry?.savedStateHandle?.get<Boolean>("isTopNews") ?: false
-//                            DetailsScreenRoot(navController = navController, isTopNews = isTopNews)
-//                        }
+                        composable(
+                            route = "${Screen.Details.route}/{venueId}",
+                            arguments = listOf(navArgument("venueId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val venueId = backStackEntry.arguments?.getString("venueId")
+                            venueId?.let {
+                                DetailsScreenRoot(navController = navController, venueId = it)
+                            }
+                        }
                     }
                 }
             }

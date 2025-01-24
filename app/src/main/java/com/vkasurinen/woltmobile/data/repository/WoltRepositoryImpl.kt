@@ -1,3 +1,4 @@
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.vkasurinen.woltmobile.data.local.WoltDao
@@ -21,6 +22,7 @@ class WoltRepositoryImpl(
             emit(Resource.Loading(true))
 
             val venuesFromApi = try {
+                Log.d("WoltRepo", "Getting venues from api $latitude, $longitude")
                 api.getVenues(latitude, longitude)
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -58,6 +60,26 @@ class WoltRepositoryImpl(
                 data = mergedVenues.map { it.toWoltModel() }
             ))
             emit(Resource.Loading(false))
+        }
+    }
+
+    override suspend fun getVenue(
+        venueId: String
+    ): Flow<Resource<WoltModel>> {
+        return flow {
+            emit(Resource.Loading(true))
+            try {
+                val venueEntity = dao.getVenue(venueId)
+                if (venueEntity != null) {
+                    emit(Resource.Success(data = venueEntity.toWoltModel()))
+                } else {
+                    emit(Resource.Error(message = "Venue not found"))
+                }
+            } catch (e: Exception) {
+                emit(Resource.Error(message = "Error loading venue: ${e.message}"))
+            } finally {
+                emit(Resource.Loading(false))
+            }
         }
     }
 

@@ -5,6 +5,7 @@ import WoltRepositoryImpl
 import androidx.room.Room
 import com.vkasurinen.woltmobile.data.local.WoltDatabase
 import com.vkasurinen.woltmobile.data.remote.WoltApi
+import com.vkasurinen.woltmobile.presentation.details.DetailsViewModel
 import com.vkasurinen.woltmobile.presentation.favorites.FavoriteViewModel
 import com.vkasurinen.woltmobile.presentation.venueList.VenueViewModel
 import okhttp3.OkHttpClient
@@ -48,4 +49,5 @@ val appModule = module {
 
     viewModel { VenueViewModel(get()) }
     viewModel { FavoriteViewModel(get()) }
+    viewModel { DetailsViewModel(get()) }
 }

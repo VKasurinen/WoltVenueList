@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.vkasurinen.woltmobile.presentation.venueList.VenueState
 import com.vkasurinen.woltmobile.presentation.venueList.components.VenueItem
+import com.vkasurinen.woltmobile.util.Screen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -26,42 +27,45 @@ fun FavoriteScreenRoot(
     val state = viewModel.state.collectAsState().value
     FavoriteScreen(
         state = state,
-        onToggleFavorite = viewModel::toggleFavorite
+        onToggleFavorite = viewModel::toggleFavorite,
+        onVenueClick = { venueId ->
+            navController.navigate("${Screen.Details.route}/$venueId")
+        }
     )
 }
 
 @Composable
 fun FavoriteScreen(
     state: VenueState,
-    onToggleFavorite: (String) -> Unit
+    onToggleFavorite: (String) -> Unit,
+    onVenueClick: (String) -> Unit
 ) {
-    Crossfade(targetState = state) { currentState ->
-        if (currentState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (currentState.error != null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = currentState.error)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp)
-            ) {
-                items(currentState.venues.filter { it.isFavorite }) { venue ->
-                    VenueItem(
-                        venue = venue,
-                        onToggleFavorite = { onToggleFavorite(venue.id) }
-                    )
-                }
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else if (state.error != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = state.error)
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp)
+        ) {
+            items(state.venues.filter { it.isFavorite }) { venue ->
+                VenueItem(
+                    venue = venue,
+                    onToggleFavorite = { onToggleFavorite(venue.id) },
+                    onClick = { onVenueClick(venue.id) }
+                )
             }
         }
     }

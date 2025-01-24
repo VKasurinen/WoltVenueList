@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
+import com.vkasurinen.woltmobile.util.Screen
 import kotlinx.coroutines.delay
 import java.nio.file.WatchEvent
 
@@ -39,51 +40,53 @@ fun VenueScreenRoot(
     val state = viewModel.state.collectAsState().value
     VenueScreen(
         state = state,
-        onToggleFavorite = viewModel::toggleFavorite
+        onToggleFavorite = viewModel::toggleFavorite,
+        onVenueClick = { venueId ->
+            navController.navigate("${Screen.Details.route}/$venueId")
+        }
     )
 }
 
 @Composable
 fun VenueScreen(
     state: VenueState,
-    onToggleFavorite: (String) -> Unit
+    onToggleFavorite: (String) -> Unit,
+    onVenueClick: (String) -> Unit
 ) {
-
     val listState = rememberLazyListState()
 
-    Crossfade(targetState = state) { currentState ->
-        if (currentState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else if (currentState.error != null) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = currentState.error)
-            }
-        } else {
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 8.dp)
-            ) {
-                items(currentState.venues) { venue ->
-                    VenueItem(
-                        venue = venue,
-                        onToggleFavorite = { onToggleFavorite(venue.id) }
-                    )
-                    Divider(
-                        modifier = Modifier
-                            .padding(horizontal = 20.dp)
-                            .height(1.dp)
-                    )
-                }
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else if (state.error != null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = state.error)
+        }
+    } else {
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 8.dp)
+        ) {
+            items(state.venues) { venue ->
+                VenueItem(
+                    venue = venue,
+                    onToggleFavorite = { onToggleFavorite(venue.id) },
+                    onClick = { onVenueClick(venue.id) }
+                )
+                Divider(
+                    modifier = Modifier
+                        .padding(horizontal = 20.dp)
+                        .height(1.dp)
+                )
             }
         }
     }
@@ -96,7 +99,8 @@ fun VenueScreen(
 private fun VenueScreenPreview() {
     VenueScreen(
         state = VenueState(),
-        onToggleFavorite = {}
+        onToggleFavorite = {},
+        onVenueClick = {}
         //onAction = {}
     )
 }
