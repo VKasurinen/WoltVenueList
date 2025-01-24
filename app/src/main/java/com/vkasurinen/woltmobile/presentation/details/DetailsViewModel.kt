@@ -34,4 +34,23 @@ class DetailsViewModel(
             }
         }
     }
+
+
+
+
+    fun toggleFavorite(venueId: String) {
+        viewModelScope.launch {
+            try {
+                val currentVenue = _state.value.venue
+                if (currentVenue != null && currentVenue.id == venueId) {
+                    val updatedVenue = currentVenue.copy(isFavorite = !currentVenue.isFavorite)
+                    _state.update { it.copy(venue = updatedVenue) }
+                    repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(error = "Error updating favorite status: ${e.message}") }
+            }
+        }
+    }
+
 }

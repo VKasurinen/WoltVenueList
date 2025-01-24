@@ -2,6 +2,7 @@ package com.vkasurinen.woltmobile.presentation.details
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,6 +52,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.vkasurinen.woltmobile.domain.model.VenuePreviewItemModel
+import com.vkasurinen.woltmobile.presentation.details.components.DetailsTopBar
 import com.vkasurinen.woltmobile.presentation.details.components.FoodCard
 
 @Composable
@@ -64,7 +66,10 @@ fun DetailsScreenRoot(
     }
     val state = viewModel.state.collectAsState().value
     DetailsScreen(
-        state = state
+        state = state,
+        onShareClick = { /* Handle share click */ },
+        onToggleFavorite = { viewModel.toggleFavorite(venueId) },
+        onBackClick = { navController.popBackStack() }
     )
 }
 
@@ -72,24 +77,21 @@ fun DetailsScreenRoot(
 //TESTAA ETTÄ VOIDAAN NAVIGOIDA DETAILLS
 //SITTEN TESTAA KUVA JOKA YULEE YLÄKOHTAAN
 //TEE MYÖS TRANSPARENT TOPAPPBAR JOSSA ON ONBACK CLICK JA EHKÄ ONFAVORIT
-//KATSO WOLT SOVELLUKSESTA INSPIRAATIOTA SEN JÄLKEEN
-
-
 
 @Composable
 private fun DetailsScreen(
     state: DetailsState,
+    onShareClick: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onBackClick: () -> Unit
 ) {
     state.venue?.let { venue ->
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
         ) {
-
             val painter = rememberAsyncImagePainter(
                 model = venue.imageUrl
-
             )
             Image(
                 painter = painter,
@@ -101,114 +103,119 @@ private fun DetailsScreen(
                     .clip(ArchShape())
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = venue.name,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 25.sp,
-                color = MaterialTheme.colorScheme.primary,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
-
-            Divider(
+            Column(
                 modifier = Modifier
-                    .padding(horizontal = 50.dp, vertical = 5.dp)
-                    .height(1.dp)
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = venue.description,
-                fontSize = 17.sp,
-//                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Icon(
-                    imageVector = Icons.Default.Star,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .size(15.dp)
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
+                    .fillMaxSize()
+                    .padding(top = 300.dp), // Add padding to avoid overlap
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Text(
-                    text = venue.rating.toString(),
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = venue.name,
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 25.sp,
+                    color = MaterialTheme.colorScheme.primary,
+                    overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
 
-                Spacer(modifier = Modifier.width(4.dp))
-
-                Icon(
-                    imageVector = Icons.Default.Circle, // Use a dot icon or custom drawable
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                Divider(
                     modifier = Modifier
-                        .size(4.dp)
+                        .padding(horizontal = 50.dp, vertical = 5.dp)
+                        .height(1.dp)
                 )
 
-                Spacer(modifier = Modifier.width(4.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 Text(
-                    text = "Min. order 10,00€",
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                Icon(
-                    imageVector = Icons.Default.Circle, // Use a dot icon or custom drawable
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .size(4.dp)
-                )
-
-                Spacer(modifier = Modifier.width(4.dp))
-
-                Text(
-                    text = venue.address,
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    text = venue.description,
+                    fontSize = 17.sp,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-            }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-            LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                items(state.venue.venuePreviewItems ?: emptyList()) { item ->
-                    item.let {
-                        FoodCard(item = it)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(15.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = venue.rating.toString(),
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Icon(
+                        imageVector = Icons.Default.Circle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(4.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = "Min. order 10,00€",
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Icon(
+                        imageVector = Icons.Default.Circle,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(4.dp)
+                    )
+
+                    Spacer(modifier = Modifier.width(4.dp))
+
+                    Text(
+                        text = venue.address,
+                        fontSize = 15.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(state.venue.venuePreviewItems ?: emptyList()) { item ->
+                        item.let {
+                            FoodCard(item = it)
+                        }
                     }
                 }
             }
 
-
-
-
+            DetailsTopBar(
+                isFavorite = venue.isFavorite,
+                onShareClick = onShareClick,
+                onToggleFavorite = onToggleFavorite,
+                onBackClick = onBackClick,
+                modifier = Modifier.align(Alignment.TopCenter) // Align TopAppBar to the top
+            )
         }
     } ?: run {
         Text(text = "No venue details available")
@@ -264,6 +271,9 @@ private fun DetailsScreenPreview() {
     )
     val sampleState = DetailsState(venue = sampleVenue)
     DetailsScreen(
-        state = sampleState
+        state = sampleState,
+        onToggleFavorite = {},
+        onBackClick = {},
+        onShareClick = {}
     )
 }
