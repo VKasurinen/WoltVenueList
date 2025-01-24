@@ -36,6 +36,7 @@ class VenueViewModel(
     init {
         Log.d("VenueViewModel", "Initializing ViewModel")
         startLocationUpdates()
+        observeFavoriteVenues()
     }
 
     private fun startLocationUpdates() {
@@ -88,6 +89,25 @@ class VenueViewModel(
                 }
             }
         }
+    }
+
+    private fun observeFavoriteVenues() {
+        viewModelScope.launch {
+            repository.getFavoriteVenues().collectLatest { resource ->
+                if (resource is Resource.Success) {
+                    val favoriteVenues = resource.data ?: emptyList()
+                    val updatedVenues = _state.value.venues.map { venue ->
+                        venue.copy(isFavorite = favoriteVenues.any { it.id == venue.id })
+                    }
+                    _state.update { it.copy(venues = updatedVenues) }
+                }
+            }
+        }
+    }
+
+    fun refreshVenues() {
+        val (latitude, longitude) = coordinates[currentCoordinateIndex]
+        loadVenues(latitude, longitude)
     }
 
     fun toggleFavorite(venueId: String) {

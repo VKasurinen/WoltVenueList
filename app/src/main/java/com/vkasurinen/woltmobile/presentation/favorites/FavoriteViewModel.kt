@@ -49,6 +49,10 @@ class FavoriteViewModel(
         }
     }
 
+    fun refreshFavoriteVenues() {
+        loadFavoriteVenues()
+    }
+
     fun toggleFavorite(venueId: String) {
         viewModelScope.launch {
             try {

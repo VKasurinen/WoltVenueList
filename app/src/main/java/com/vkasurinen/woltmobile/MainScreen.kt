@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.Gamepad
 import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -131,8 +132,8 @@ fun BottomNavigationBar(
 
     val items = listOf(
         BottomItem(
-            "Home",
-            icon = Icons.Rounded.Home
+            "Restaurants",
+            icon = Icons.Rounded.Restaurant
         ),
         BottomItem(
             "Favorites",

@@ -89,11 +89,17 @@ class WoltRepositoryImpl(
 
     override suspend fun getFavoriteVenues(): Flow<Resource<List<WoltModel>>> {
         return flow {
-            emit(Resource.Loading(true))
-            val favoriteVenues = dao.getFavoriteVenues()
-            emit(Resource.Success(data = favoriteVenues.map { it.toWoltModel() }))
-            emit(Resource.Loading(false))
+            try {
+                emit(Resource.Loading(true))
+                val favoriteVenues = dao.getFavoriteVenues()
+                emit(Resource.Success(data = favoriteVenues.map { it.toWoltModel() }))
+            } catch (e: Exception) {
+                emit(Resource.Error(message = e.localizedMessage ?: "An unknown error occurred"))
+            } finally {
+                emit(Resource.Loading(false))
+            }
         }
     }
+
 
 }

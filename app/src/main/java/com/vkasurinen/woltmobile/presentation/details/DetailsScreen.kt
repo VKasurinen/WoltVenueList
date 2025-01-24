@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.sp
 import com.vkasurinen.woltmobile.domain.model.VenuePreviewItemModel
 import com.vkasurinen.woltmobile.presentation.details.components.DetailsTopBar
 import com.vkasurinen.woltmobile.presentation.details.components.FoodCard
+import com.vkasurinen.woltmobile.presentation.venueList.VenueState
 
 @Composable
 fun DetailsScreenRoot(
@@ -80,7 +81,7 @@ fun DetailsScreenRoot(
 
 @Composable
 private fun DetailsScreen(
-    state: DetailsState,
+    state: VenueState,
     onShareClick: () -> Unit,
     onToggleFavorite: () -> Unit,
     onBackClick: () -> Unit
@@ -201,10 +202,8 @@ private fun DetailsScreen(
                 LazyRow(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(state.venue.venuePreviewItems ?: emptyList()) { item ->
-                        item.let {
-                            FoodCard(item = it)
-                        }
+                    items(venue.venuePreviewItems ?: emptyList()) { item ->
+                        FoodCard(item = item)
                     }
                 }
             }
@@ -269,7 +268,7 @@ private fun DetailsScreenPreview() {
             )
         )
     )
-    val sampleState = DetailsState(venue = sampleVenue)
+    val sampleState = VenueState(venue = sampleVenue)
     DetailsScreen(
         state = sampleState,
         onToggleFavorite = {},

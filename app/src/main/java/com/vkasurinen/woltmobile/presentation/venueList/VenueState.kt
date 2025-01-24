@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.emptyFlow
 
 data class VenueState(
     val venues: List<WoltModel> = emptyList(),
+    val venue: WoltModel? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )

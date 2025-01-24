@@ -38,6 +38,11 @@ fun VenueScreenRoot(
     viewModel: VenueViewModel = koinViewModel()
 ) {
     val state = viewModel.state.collectAsState().value
+
+    LaunchedEffect(Unit) {
+        viewModel.refreshVenues()
+    }
+
     VenueScreen(
         state = state,
         onToggleFavorite = viewModel::toggleFavorite,
