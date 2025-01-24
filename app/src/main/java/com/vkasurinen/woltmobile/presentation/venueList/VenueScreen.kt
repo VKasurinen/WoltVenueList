@@ -1,11 +1,7 @@
 package com.vkasurinen.woltmobile.presentation.venueList
 
-import android.content.res.Configuration
-import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 
@@ -19,17 +15,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
 import com.vkasurinen.woltmobile.presentation.venueList.components.VenueItem
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
+import com.vkasurinen.woltmobile.presentation.SharedState
 import com.vkasurinen.woltmobile.util.Screen
-import kotlinx.coroutines.delay
-import java.nio.file.WatchEvent
 
 
 @Composable
@@ -54,7 +47,7 @@ fun VenueScreenRoot(
 
 @Composable
 fun VenueScreen(
-    state: VenueState,
+    state: SharedState,
     onToggleFavorite: (String) -> Unit,
     onVenueClick: (String) -> Unit
 ) {
@@ -103,7 +96,7 @@ fun VenueScreen(
 @Composable
 private fun VenueScreenPreview() {
     VenueScreen(
-        state = VenueState(),
+        state = SharedState(),
         onToggleFavorite = {},
         onVenueClick = {}
         //onAction = {}

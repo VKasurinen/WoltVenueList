@@ -3,7 +3,7 @@ package com.vkasurinen.woltmobile.presentation.details
 import WoltRepository
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.vkasurinen.woltmobile.presentation.venueList.VenueState
+import com.vkasurinen.woltmobile.presentation.SharedState
 import com.vkasurinen.woltmobile.util.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,8 +16,8 @@ class DetailsViewModel(
     private val repository: WoltRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(VenueState())
-    val state: StateFlow<VenueState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(SharedState())
+    val state: StateFlow<SharedState> = _state.asStateFlow()
 
     fun loadVenue(venueId: String) {
         viewModelScope.launch {

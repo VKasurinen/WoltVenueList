@@ -26,11 +26,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -38,8 +34,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.vkasurinen.woltmobile.domain.model.WoltModel
-import com.vkasurinen.woltmobile.presentation.details.DetailsViewModel
-import com.vkasurinen.woltmobile.presentation.details.DetailsState
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.unit.LayoutDirection
@@ -49,12 +43,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.unit.max
 import androidx.compose.ui.unit.sp
 import com.vkasurinen.woltmobile.domain.model.VenuePreviewItemModel
 import com.vkasurinen.woltmobile.presentation.details.components.DetailsTopBar
 import com.vkasurinen.woltmobile.presentation.details.components.FoodCard
-import com.vkasurinen.woltmobile.presentation.venueList.VenueState
+import com.vkasurinen.woltmobile.presentation.SharedState
 
 @Composable
 fun DetailsScreenRoot(
@@ -81,7 +74,7 @@ fun DetailsScreenRoot(
 
 @Composable
 private fun DetailsScreen(
-    state: VenueState,
+    state: SharedState,
     onShareClick: () -> Unit,
     onToggleFavorite: () -> Unit,
     onBackClick: () -> Unit
@@ -268,7 +261,7 @@ private fun DetailsScreenPreview() {
             )
         )
     )
-    val sampleState = VenueState(venue = sampleVenue)
+    val sampleState = SharedState(venue = sampleVenue)
     DetailsScreen(
         state = sampleState,
         onToggleFavorite = {},

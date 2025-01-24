@@ -4,6 +4,7 @@ import WoltRepository
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.vkasurinen.woltmobile.presentation.SharedState
 import com.vkasurinen.woltmobile.util.Resource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,8 +18,8 @@ class VenueViewModel(
     private val repository: WoltRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(VenueState())
-    val state: StateFlow<VenueState> = _state.asStateFlow()
+    private val _state = MutableStateFlow(SharedState())
+    val state: StateFlow<SharedState> = _state.asStateFlow()
 
     private val coordinates = listOf(
         Pair(60.169418, 24.931618),

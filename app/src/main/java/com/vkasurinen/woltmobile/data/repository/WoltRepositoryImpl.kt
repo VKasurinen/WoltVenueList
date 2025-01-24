@@ -9,6 +9,8 @@ import com.vkasurinen.woltmobile.domain.model.WoltModel
 import com.vkasurinen.woltmobile.util.Resource
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -17,48 +19,53 @@ class WoltRepositoryImpl(
     private val dao: WoltDao
 ) : WoltRepository {
 
+    private val requestSemaphore = Semaphore(8)
+
     override suspend fun getVenues(latitude: Double, longitude: Double, forceFetchFromRemote: Boolean): Flow<Resource<List<WoltModel>>> {
         return flow {
             emit(Resource.Loading(true))
 
-            val venuesFromApi = try {
-                Log.d("WoltRepo", "Getting venues from api $latitude, $longitude")
-                api.getVenues(latitude, longitude)
-            } catch (e: IOException) {
-                e.printStackTrace()
-                emit(Resource.Error(message = "Error loading venues"))
-                return@flow
-            } catch (e: HttpException) {
-                e.printStackTrace()
-                emit(Resource.Error(message = "Error loading venues"))
-                return@flow
-            } catch (e: Exception) {
-                e.printStackTrace()
-                emit(Resource.Error(message = "Error loading venues"))
-                return@flow
-            }
-
-            val venueEntities = venuesFromApi.sections
-                .flatMap { it.items }
-                .filter { it.venue != null && !it.venue.name.isNullOrEmpty() }
-                .map { it.toWoltEntity() }
-
-            // Preserve the isFavorite status
-            val existingVenues = dao.getAllVenues()
-            val mergedVenues = venueEntities.map { newVenue ->
-                val existingVenue = existingVenues.find { it.id == newVenue.id }
-                if (existingVenue != null) {
-                    newVenue.copy(isFavorite = existingVenue.isFavorite)
-                } else {
-                    newVenue
+            requestSemaphore.withPermit {
+                val venuesFromApi = try {
+                    Log.d("WoltRepo", "Getting venues from api $latitude, $longitude")
+                    api.getVenues(latitude, longitude)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                    emit(Resource.Error(message = "Error loading venues"))
+                    return@flow
+                } catch (e: HttpException) {
+                    e.printStackTrace()
+                    emit(Resource.Error(message = "Error loading venues"))
+                    return@flow
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    emit(Resource.Error(message = "Error loading venues"))
+                    return@flow
                 }
+
+                val venueEntities = venuesFromApi.sections
+                    .flatMap { it.items }
+                    .filter { it.venue != null && !it.venue.name.isNullOrEmpty() }
+                    .map { it.toWoltEntity() }
+
+                // Preserve the isFavorite status
+                val existingVenues = dao.getAllVenues()
+                val mergedVenues = venueEntities.map { newVenue ->
+                    val existingVenue = existingVenues.find { it.id == newVenue.id }
+                    if (existingVenue != null) {
+                        newVenue.copy(isFavorite = existingVenue.isFavorite)
+                    } else {
+                        newVenue
+                    }
+                }
+
+                dao.insertVenues(mergedVenues)
+
+                emit(Resource.Success(
+                    data = mergedVenues.map { it.toWoltModel() }
+                ))
             }
 
-            dao.insertVenues(mergedVenues)
-
-            emit(Resource.Success(
-                data = mergedVenues.map { it.toWoltModel() }
-            ))
             emit(Resource.Loading(false))
         }
     }

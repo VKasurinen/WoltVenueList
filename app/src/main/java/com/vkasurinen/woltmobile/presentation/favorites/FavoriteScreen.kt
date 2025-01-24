@@ -14,7 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.vkasurinen.woltmobile.presentation.venueList.VenueState
+import com.vkasurinen.woltmobile.presentation.SharedState
 import com.vkasurinen.woltmobile.presentation.venueList.components.VenueItem
 import com.vkasurinen.woltmobile.util.Screen
 import org.koin.androidx.compose.koinViewModel
@@ -41,7 +41,7 @@ fun FavoriteScreenRoot(
 
 @Composable
 fun FavoriteScreen(
-    state: VenueState,
+    state: SharedState,
     onToggleFavorite: (String) -> Unit,
     onVenueClick: (String) -> Unit
 ) {

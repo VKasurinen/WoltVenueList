@@ -1,11 +1,8 @@
-package com.vkasurinen.woltmobile.presentation.venueList
+package com.vkasurinen.woltmobile.presentation
 
-import androidx.paging.PagingData
 import com.vkasurinen.woltmobile.domain.model.WoltModel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
 
-data class VenueState(
+data class SharedState(
     val venues: List<WoltModel> = emptyList(),
     val venue: WoltModel? = null,
     val isLoading: Boolean = false,
