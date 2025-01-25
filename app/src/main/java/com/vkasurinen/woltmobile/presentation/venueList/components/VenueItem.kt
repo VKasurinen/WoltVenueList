@@ -49,6 +49,8 @@ fun VenueItem(
     onToggleFavorite: () -> Unit,
     onClick: () -> Unit
 ) {
+
+    //IMAGE ----------------------------------------------------------
     val painter = rememberAsyncImagePainter(
         model = ImageRequest.Builder(LocalContext.current)
             .data(venue.imageUrl)
@@ -88,6 +90,7 @@ fun VenueItem(
                 contentScale = ContentScale.Crop
             )
         }
+        //IMAGE ----------------------------------------------------------
 
         Spacer(modifier = Modifier.width(16.dp))
 

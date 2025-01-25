@@ -1,6 +1,7 @@
 package com.vkasurinen.woltmobile.presentation.details
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Circle
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.rounded.ImageNotSupported
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,19 +37,18 @@ import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.vkasurinen.woltmobile.domain.model.WoltModel
 import org.koin.androidx.compose.koinViewModel
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.graphics.Outline
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImagePainter
+import coil.request.ImageRequest
+import coil.size.Size
 import com.vkasurinen.woltmobile.domain.model.VenuePreviewItemModel
 import com.vkasurinen.woltmobile.presentation.details.components.DetailsTopBar
 import com.vkasurinen.woltmobile.presentation.details.components.FoodCard
 import com.vkasurinen.woltmobile.presentation.SharedState
+import com.vkasurinen.woltmobile.presentation.details.components.ArchShape
+
 
 @Composable
 fun DetailsScreenRoot(
@@ -84,23 +85,49 @@ private fun DetailsScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+
+            //IMAGE ----------------------------------------------------------
+
             val painter = rememberAsyncImagePainter(
-                model = venue.imageUrl
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(venue.imageUrl)
+                    .size(Size.ORIGINAL)
+                    .build()
             )
-            Image(
-                painter = painter,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(300.dp)
-                    .clip(ArchShape())
-            )
+            val imageState = painter.state
+
+            if (imageState is AsyncImagePainter.State.Error) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .clip(ArchShape())
+                        .background(MaterialTheme.colorScheme.primaryContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ImageNotSupported,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp)
+                    )
+                }
+            } else {
+                Image(
+                    painter = painter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(300.dp)
+                        .clip(ArchShape())
+                )
+            }
+            //IMAGE ----------------------------------------------------------
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(top = 300.dp), // Add padding to avoid overlap
+                    .padding(top = 300.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Spacer(modifier = Modifier.height(12.dp))
@@ -191,9 +218,27 @@ private fun DetailsScreen(
                 }
 
                 Spacer(modifier = Modifier.height(12.dp))
+                
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 12.dp)
+                ) {
+                    Text(
+                        text = "Most ordered",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
 
                 LazyRow(
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+//                        .padding(horizontal = 12.dp)
                 ) {
                     items(venue.venuePreviewItems ?: emptyList()) { item ->
                         FoodCard(item = item)
@@ -214,28 +259,6 @@ private fun DetailsScreen(
     }
 }
 
-
-
-@Stable
-fun ArchShape(): Shape = object : Shape {
-    override fun createOutline(
-        size: Size,
-        layoutDirection: LayoutDirection,
-        density: Density
-    ): Outline {
-        val path = Path().apply {
-            moveTo(0f, 0f) // Top-left corner
-            lineTo(0f, size.height - 50f) // Bottom-left corner before the arch
-            quadraticBezierTo(
-                size.width / 2, size.height - 100f, // Control point for the arch
-                size.width, size.height - 50f // Bottom-right corner of the arch
-            )
-            lineTo(size.width, 0f) // Top-right corner
-            close()
-        }
-        return Outline.Generic(path)
-    }
-}
 
 @Preview(
     showBackground = true

@@ -40,16 +40,16 @@ class DetailsViewModel(
     fun toggleFavorite(venueId: String) {
         viewModelScope.launch {
             try {
-                val currentVenue = _state.value.venue
+                val currentVenue = _state.value.venue // Retrieve the currently selected venue from the state
                 if (currentVenue != null && currentVenue.id == venueId) {
-                    val updatedVenue = currentVenue.copy(isFavorite = !currentVenue.isFavorite)
-                    _state.update { it.copy(venue = updatedVenue) }
+                    val updatedVenue = currentVenue.copy(isFavorite = !currentVenue.isFavorite) // Create an updated venue with the `isFavorite` status toggled
+                    _state.update { it.copy(venue = updatedVenue) } // Update the ViewModel's state with the updated venue
                     repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
                     // Notify other view models about the change
                     repository.getFavoriteVenues().collectLatest { result ->
                         if (result is Resource.Success) {
                             val favoriteVenues = result.data ?: emptyList()
-                            val updatedVenues = _state.value.venues.map { venue ->
+                            val updatedVenues = _state.value.venues.map { venue ->  // Update the list of venues in the state to reflect the new favorite status
                                 venue.copy(isFavorite = favoriteVenues.any { it.id == venue.id })
                             }
                             _state.update { it.copy(venues = updatedVenues) }

@@ -50,7 +50,7 @@ fun DetailsTopBar(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f))
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
             ) {
                 Icon(
                     imageVector = Icons.Default.ArrowBack,
@@ -65,7 +65,7 @@ fun DetailsTopBar(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f))
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
             ) {
                 Icon(
                     imageVector = Icons.Default.Share,
@@ -81,7 +81,7 @@ fun DetailsTopBar(
                 modifier = Modifier
                     .size(48.dp)
                     .clip(RoundedCornerShape(24.dp))
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.6f))
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.7f))
             ) {
                 Icon(
                     painter = painterResource(
@@ -105,10 +105,10 @@ fun DetailsTopBar(
 fun DetailsTopBarPreview() {
     WoltMobileTheme(dynamicColor = false) {
         DetailsTopBar(
-            isFavorite = false, // Pass a sample value for isFavorite
+            isFavorite = false,
             onShareClick = { /*TODO*/ },
             onToggleFavorite = { /*TODO*/ },
-            onBackClick = { /*TODO*/ } // Pass a sample onBackClick action
+            onBackClick = { /*TODO*/ }
         )
     }
 }

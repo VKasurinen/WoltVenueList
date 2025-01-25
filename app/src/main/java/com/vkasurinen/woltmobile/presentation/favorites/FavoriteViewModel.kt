@@ -56,13 +56,13 @@ class FavoriteViewModel(
     fun toggleFavorite(venueId: String) {
         viewModelScope.launch {
             try {
-                val currentVenues = _state.value.venues.toMutableList()
+                val currentVenues = _state.value.venues.toMutableList() // Get the current list of venues from the state and make a mutable copy
                 val venueIndex = currentVenues.indexOfFirst { it.id == venueId }
                 if (venueIndex != -1) {
-                    val venue = currentVenues[venueIndex]
-                    val updatedVenue = venue.copy(isFavorite = !venue.isFavorite)
-                    currentVenues[venueIndex] = updatedVenue
-                    _state.update { it.copy(venues = currentVenues) }
+                    val venue = currentVenues[venueIndex]  // Retrieve the venue at the found index
+                    val updatedVenue = venue.copy(isFavorite = !venue.isFavorite) // Create an updated venue with the `isFavorite` status toggled
+                    currentVenues[venueIndex] = updatedVenue // Update the mutable list with the updated venue at the same index
+                    _state.update { it.copy(venues = currentVenues) }  // Update the ViewModel's state with the modified list of venues
                     repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
                 }
             } catch (e: Exception) {

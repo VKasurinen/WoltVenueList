@@ -48,8 +48,11 @@ class VenueViewModel(
 
         viewModelScope.launch {
             while (true) {
-                val (latitude, longitude) = coordinates[currentCoordinateIndex]
+                val (latitude, longitude) = coordinates[currentCoordinateIndex]  // Get the current latitude and longitude from the list of coordinates
                 loadVenues(latitude, longitude)
+
+                // Update the current coordinate index to point to the next coordinate
+                // Use modulo to loop back to the start when reaching the end of the list
                 currentCoordinateIndex = (currentCoordinateIndex + 1) % coordinates.size
                 delay(10000) // 10 seconds
             }
@@ -94,9 +97,12 @@ class VenueViewModel(
 
     private fun observeFavoriteVenues() {
         viewModelScope.launch {
-            repository.getFavoriteVenues().collectLatest { result ->
+            repository.getFavoriteVenues().collectLatest { result -> // Check if the result is a successful response
                 if (result is Resource.Success) {
-                    val favoriteVenues = result.data ?: emptyList()
+                    val favoriteVenues = result.data ?: emptyList()  // Get the list of favorite venues from the result; use an empty list if null
+
+                    // Update the venues in the current state by mapping through them
+                    // For each venue, check if it exists in the favorite venues list and update its isFavorite property
                     val updatedVenues = _state.value.venues.map { venue ->
                         venue.copy(isFavorite = favoriteVenues.any { it.id == venue.id })
                     }
@@ -114,13 +120,13 @@ class VenueViewModel(
     fun toggleFavorite(venueId: String) {
         viewModelScope.launch {
             try {
-                val currentVenues = _state.value.venues.toMutableList()
+                val currentVenues = _state.value.venues.toMutableList() // Get the current list of venues from the state and make a mutable copy
                 val venueIndex = currentVenues.indexOfFirst { it.id == venueId }
                 if (venueIndex != -1) {
-                    val venue = currentVenues[venueIndex]
-                    val updatedVenue = venue.copy(isFavorite = !venue.isFavorite)
-                    currentVenues[venueIndex] = updatedVenue
-                    _state.update { it.copy(venues = currentVenues) }
+                    val venue = currentVenues[venueIndex] // Retrieve the venue at the found index
+                    val updatedVenue = venue.copy(isFavorite = !venue.isFavorite) // Create an updated venue with the `isFavorite` status toggled
+                    currentVenues[venueIndex] = updatedVenue // Update the mutable list with the updated venue at the same index
+                    _state.update { it.copy(venues = currentVenues) }  // Update the ViewModel's state with the modified list of venues
                     repository.updateFavoriteStatus(venueId, updatedVenue.isFavorite)
                 }
             } catch (e: Exception) {

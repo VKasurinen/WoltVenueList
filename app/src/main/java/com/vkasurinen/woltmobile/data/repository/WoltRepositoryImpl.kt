@@ -24,7 +24,7 @@ class WoltRepositoryImpl(
             emit(Resource.Loading(true))
                 val venuesFromApi = try {
                     Log.d("WoltRepo", "Getting venues from api $latitude, $longitude")
-                    api.getVenues(latitude, longitude)
+                    api.getVenues(latitude, longitude) // Attempt to fetch venues from the API
                 } catch (e: IOException) {
                     e.printStackTrace()
                     emit(Resource.Error(message = "Error loading venues"))
@@ -39,26 +39,26 @@ class WoltRepositoryImpl(
                     return@flow
                 }
 
-                val venueEntities = venuesFromApi.sections
-                    .flatMap { it.items }
-                    .filter { it.venue != null && !it.venue.name.isNullOrEmpty() }
-                    .map { it.toWoltEntity() }
+                val venueEntities = venuesFromApi.sections // Extract venue entities from the API response
+                    .flatMap { it.items } // Flatten sections into a list of items
+                    .filter { it.venue != null && !it.venue.name.isNullOrEmpty() } // Filter valid venues
+                    .map { it.toWoltEntity() } // Map items to WoltEntity
 
                 // Preserve the isFavorite status
                 val existingVenues = dao.getAllVenues()
-                val mergedVenues = venueEntities.map { newVenue ->
+                val mergedVenues = venueEntities.map { newVenue ->  // Merge the new venues with existing ones, preserving the isFavorite status
                     val existingVenue = existingVenues.find { it.id == newVenue.id }
                     if (existingVenue != null) {
-                        newVenue.copy(isFavorite = existingVenue.isFavorite)
+                        newVenue.copy(isFavorite = existingVenue.isFavorite) // If a match is found, copy the isFavorite status to the new venue
                     } else {
-                        newVenue
+                        newVenue // Otherwise, use the new venue as is
                     }
                 }
 
-                dao.insertVenues(mergedVenues)
+                dao.insertVenues(mergedVenues) // Insert the merged venues into the database
 
                 emit(Resource.Success(
-                    data = mergedVenues.map { it.toWoltModel() }
+                    data = mergedVenues.map { it.toWoltModel() } // Emit a success state with the list of merged venues mapped to WoltModel
                 ))
 
             emit(Resource.Loading(false))
@@ -71,9 +71,9 @@ class WoltRepositoryImpl(
         return flow {
             emit(Resource.Loading(true))
             try {
-                val venueEntity = dao.getVenue(venueId)
+                val venueEntity = dao.getVenue(venueId) // Attempt to fetch the venue entity from the database using its ID
                 if (venueEntity != null) {
-                    emit(Resource.Success(data = venueEntity.toWoltModel()))
+                    emit(Resource.Success(data = venueEntity.toWoltModel()))  // If the venue exists, emit a success state with the venue converted to a WoltModel
                 } else {
                     emit(Resource.Error(message = "Venue not found"))
                 }
@@ -93,8 +93,8 @@ class WoltRepositoryImpl(
         return flow {
             try {
                 emit(Resource.Loading(true))
-                val favoriteVenues = dao.getFavoriteVenues()
-                emit(Resource.Success(data = favoriteVenues.map { it.toWoltModel() }))
+                val favoriteVenues = dao.getFavoriteVenues() // Fetch the list of favorite venues from the database
+                emit(Resource.Success(data = favoriteVenues.map { it.toWoltModel() })) // Convert the list of venue entities into WoltModel objects and emit as a success state
             } catch (e: Exception) {
                 emit(Resource.Error(message = e.localizedMessage ?: "An unknown error occurred"))
             } finally {
